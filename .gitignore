@@ -1,0 +1,35 @@
+# Data, features, and results are not versioned (regenerate with the scripts)
+data/
+results/
+outputs/
+*.mat
+*.npz
+*.npy
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.tar.gz
+*.zip
+
+# Third-party BTC toolbox (obtain separately; see README)
+jv/
+
+# Manuscripts, reviews, and correspondence are never versioned here
+manuscripts/
+*.pdf
+*.docx
+*.tex
+
+# Credentials
+.env
+*.key
+*token*
+*secret*
+
+# Python / tooling
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+.DS_Store
