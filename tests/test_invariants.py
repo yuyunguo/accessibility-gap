@@ -97,3 +97,20 @@ def test_probes_recover_linear_signal_and_null_on_permuted_labels():
     assert np.mean(r["ridge_tuned"]["test_r2"]) > 0.95
     r_null = evaluate_folds(X, rng.permutation(y), splits, probes)
     assert np.mean(r_null["ridge_tuned"]["test_r2"]) < 0.05
+
+
+def test_realized_stats_geometry_on_checkerboard():
+    """Checkerboard s(r,c)=(-1)^(r+c): β_h=β_v=-1, β_d=β_a=+1, θ=-1... α=+1, γ≈0."""
+    r, c = np.meshgrid(np.arange(16), np.arange(16), indexing="ij")
+    board = (((r + c) % 2) == 0).astype(np.uint8)
+    st = realized_stats(board)
+    assert st["beta_h"] == -1 and st["beta_v"] == -1 and st["beta_d"] == 1 and st["beta_a"] == 1
+    assert st["alpha"] == 1 and abs(st["gamma"]) < 1e-12
+
+
+def test_generator_validation_flags_bad_alpha():
+    from generate_btc_octave import validate
+    good = {k: 0.0 for k in realized_stats(np.ones((4, 4, 2), dtype=np.uint8))} | {"alpha": 0.3}
+    assert validate("alpha", 0.3, good, 64, 200)[0]
+    assert not validate("alpha", 0.3, good | {"alpha": 0.25}, 64, 200)[0]
+    assert not validate("alpha", 0.3, good | {"beta_h": 0.05}, 64, 200)[0]

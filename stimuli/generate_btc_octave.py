@@ -16,7 +16,7 @@ import logging
 import os
 import subprocess
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import numpy as np
 import scipy.io as sio
@@ -29,7 +29,12 @@ STAT_INDEX = {"gamma": 0, "beta1": 1, "beta2": 2, "beta3": 3, "beta4": 4,
 
 
 def realized_stats(maps: np.ndarray) -> Dict[str, float]:
-    """Realized γ, β (h, v, d, a), θ (four orientations), and α in ±1 coding."""
+    """Realized γ, β (h, v, d, a), θ (four orientations), and α in ±1 coding.
+
+    ``maps`` is (rows, cols, nmaps) with values in {0, 1}; a single 2-D map is accepted.
+    Pixel layout of each 2×2 block: a=(r, c), b=(r, c+1), c=(r+1, c), d=(r+1, c+1).
+    """
+    maps = maps[:, :, np.newaxis] if maps.ndim == 2 else maps
     s = 2.0 * np.transpose(maps, (2, 0, 1)).astype(np.float64) - 1.0
     a, b, c, d = s[:, :-1, :-1], s[:, :-1, 1:], s[:, 1:, :-1], s[:, 1:, 1:]
     return {"gamma": s.mean(), "beta_h": (a * b).mean(), "beta_v": (a * c).mean(),
@@ -37,6 +42,25 @@ def realized_stats(maps: np.ndarray) -> Dict[str, float]:
             "theta_abc": (a * b * c).mean(), "theta_abd": (a * b * d).mean(),
             "theta_acd": (a * c * d).mean(), "theta_bcd": (b * c * d).mean(),
             "alpha": (a * b * c * d).mean()}
+
+
+def validate(stat: str, level: float, st: Dict[str, float], size: int, nmaps: int) -> Tuple[bool, str]:
+    """Check the targeted statistic and, for α, that all lower-order statistics are ≈ 0.
+
+    Tolerance: 5 standard errors of a ±1 product averaged over all blocks, i.e.
+    5 / sqrt(nmaps · (size-1)²). Only α-only stimuli are required to have zero
+    lower-order statistics (maximum-entropy β₁/β₂ and γ families induce other orders).
+    """
+    tol = 5.0 / np.sqrt(nmaps * (size - 1) ** 2)
+    target = {"alpha": "alpha", "gamma": "gamma", "beta1": "beta_h", "beta2": "beta_v",
+              "beta3": "beta_d", "beta4": "beta_a", "theta1": "theta_bcd", "theta2": "theta_acd",
+              "theta3": "theta_abc", "theta4": "theta_abd"}[stat]
+    problems = []
+    if abs(st[target] - level) > tol:
+        problems.append(f"{target}={st[target]:+.4f} vs nominal {level} (tol {tol:.4f})")
+    if stat == "alpha":
+        problems += [f"{k}={v:+.4f}" for k, v in st.items() if k != "alpha" and abs(v) > tol]
+    return (not problems), "; ".join(problems)
 
 
 def run_octave(btc_dir: Path, stat: str, level: float, size: int, nmaps: int, seed: int, out: Path) -> None:
@@ -48,8 +72,10 @@ def run_octave(btc_dir: Path, stat: str, level: float, size: int, nmaps: int, se
         f"opts.nmaps={nmaps}; opts.method='btc'; opts.paramvals=[{','.join(map(str, pv))}];"
         f"maps=uint8(hocmake_btc(opts)); save('-mat7-binary', '{out}', 'maps');"
     )
-    subprocess.run([os.environ.get("OCTAVE_BIN", "octave"), "--no-gui", "--quiet", "--eval", code],
-                   check=True, capture_output=True, text=True)
+    proc = subprocess.run([os.environ.get("OCTAVE_BIN", "octave"), "--no-gui", "--quiet", "--eval", code],
+                          capture_output=True, text=True)
+    if proc.returncode != 0 or not out.exists():
+        raise RuntimeError(f"Octave failed for {out.name} (seed {seed}):\n{proc.stderr[-2000:]}")
 
 
 def main() -> None:
@@ -77,9 +103,12 @@ def main() -> None:
             out = (args.out_dir / name).resolve()
             run_octave(args.btc_dir.resolve(), args.stat, level, size, args.nmaps, seed, out)
             st = realized_stats(sio.loadmat(out)["maps"])
+            ok, why = validate(args.stat, level, st, size, args.nmaps)
             manifest.append({"file": name, "stat": args.stat, "level": level, "size": size,
-                             "nmaps": args.nmaps, "set": args.set_name, "seed": seed,
-                             "realized": {k: round(float(v), 4) for k, v in st.items()}})
+                             "nmaps": args.nmaps, "set": args.set_name, "seed": seed, "valid": ok,
+                             "validation": why, "realized": {k: round(float(v), 4) for k, v in st.items()}})
+            if not ok:
+                logger.error(f"{name}: VALIDATION FAILED: {why}")
             logger.info(f"{name}: seed={seed} realized {args.stat}≈"
                         f"{st['alpha'] if args.stat == 'alpha' else st}")
             manifest_path.write_text(json.dumps(manifest, indent=1))

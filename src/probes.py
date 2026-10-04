@@ -24,9 +24,11 @@ logger = logging.getLogger(__name__)
 class ProbeConfig:
     """Hyperparameters for the probe family."""
 
-    ridge_alphas: Tuple[float, ...] = tuple(np.logspace(-2, 6, 33))
+    # Grids extended (2026-10-04) after audit showed selections on edges: ridge hit 1e6 only
+    # where R²≈0 (t=900); the MLP hit L2=1.0 (lowest) for high-R² models.
+    ridge_alphas: Tuple[float, ...] = tuple(np.logspace(-2, 8, 41))
     mlp_hidden: Tuple[int, ...] = (128, 32)
-    mlp_l2_grid: Tuple[float, ...] = (1.0, 10.0, 100.0)
+    mlp_l2_grid: Tuple[float, ...] = (0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0)
     mlp_max_iter: int = 2000
     inner_folds: int = 3
     n_jobs: int = 8

@@ -25,7 +25,10 @@ from revision_probing import probe_all  # noqa: E402  (legacy module)
 
 logger = logging.getLogger(__name__)
 
-# Values as printed in the submitted manuscript (3 decimals).
+# Values as printed in the submitted manuscript (3 decimals), taken from Supplementary Table S1
+# and Table 2. Note two inconsistencies inside the submitted manuscript itself: ImageGPT
+# MLP(PCA-64) is 0.873 in Table 1 but 0.875 in Table S1 (reproduced: 0.8754), and ImageGPT
+# ΔR²(PCA) is −0.028 in Table 1 but −0.026 in Supplement S1 text.
 # Keys: linear_full, linear_pca64, mlp_pca64, mlp_full.
 SUBMITTED: Dict[str, Dict[str, float]] = {
     "clip":           {"linear_full": 0.966, "linear_pca64": 0.972, "mlp_pca64": 0.967, "mlp_full": 0.976},
