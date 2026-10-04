@@ -64,12 +64,12 @@ def build_probes(dim: int, include_slow: bool, seed: int) -> Dict[str, Tuple[Pip
                 {"learning_rate": [0.05, 0.1], "max_leaf_nodes": [15, 31]}),
     }
     if include_slow:
-        probes["mlp"] = (_scaled(MLPRegressor(hidden_layer_sizes=(128, 32), solver="lbfgs", max_iter=4000,
+        probes["mlp"] = (_scaled(MLPRegressor(hidden_layer_sizes=(128, 32), solver="lbfgs", max_iter=2000,
                                               random_state=seed)),
-                         {"est__alpha": [0.1, 1.0, 10.0, 100.0]})
-        probes["mlp_wide"] = (_scaled(MLPRegressor(hidden_layer_sizes=(512, 128), solver="lbfgs", max_iter=4000,
-                                                   random_state=seed)),
-                              {"est__alpha": [1.0, 10.0, 100.0]})
+                         {"est__alpha": [1.0, 10.0, 100.0]})
+        # Wider network at the L2 most often selected for the standard MLP (sanity check on capacity).
+        probes["mlp_wide"] = (_scaled(MLPRegressor(hidden_layer_sizes=(512, 128), solver="lbfgs", max_iter=2000,
+                                                   alpha=10.0, random_state=seed)), {})
     return probes
 
 
@@ -89,12 +89,15 @@ def run_mode(X: np.ndarray, y: np.ndarray, fam: np.ndarray, mode: str, probes: D
         inner = GroupKFold(3, shuffle=True, random_state=seed) if mode == "grouped" else 3
         fit_kw = {"groups": fam[tr]} if mode == "grouped" else {}
         for name, (pipe, grid) in probes.items():
-            gs = GridSearchCV(clone(pipe), grid, cv=inner, n_jobs=n_jobs).fit(X[tr], y[tr], **fit_kw)
-            est = gs.best_estimator_
+            if grid:
+                gs = GridSearchCV(clone(pipe), grid, cv=inner, n_jobs=n_jobs).fit(X[tr], y[tr], **fit_kw)
+                est, best = gs.best_estimator_, gs.best_params_
+            else:
+                est, best = clone(pipe).fit(X[tr], y[tr]), {}
             res[name]["test"].append(float(est.score(X[te], y[te])))
             res[name]["train"].append(float(est.score(X[tr], y[tr])))
-            res[name]["best"].append({p: float(v) for p, v in gs.best_params_.items()})
-            res[name]["boundary"].append(_boundary(grid, gs.best_params_))
+            res[name]["best"].append({p: float(v) for p, v in best.items()})
+            res[name]["boundary"].append(_boundary(grid, best))
             mlp = est.named_steps.get("est") if isinstance(est, Pipeline) else None
             if isinstance(mlp, MLPRegressor):
                 res[name]["n_iter"].append(int(mlp.n_iter_))
@@ -121,6 +124,7 @@ def main() -> None:
     parser.add_argument("--n-splits", type=int, default=5)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--n-jobs", type=int, default=14)
+    parser.add_argument("--modes", nargs="+", default=["random", "grouped"], choices=["random", "grouped"])
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
@@ -131,7 +135,7 @@ def main() -> None:
         fam = family_index(y)
         probes = build_probes(X.shape[1], include_slow=f.stem in args.slow, seed=args.seed)
         out[f.stem] = {}
-        for mode in ("random", "grouped"):
+        for mode in args.modes:
             t0 = time.time()
             r = run_mode(X, y, fam, mode, probes, args.n_splits, args.seed, args.n_jobs)
             s = summarize(r)
