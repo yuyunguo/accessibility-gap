@@ -1,9 +1,12 @@
 """Feature extraction with explicit, auditable preprocessing (revision v2).
 
-Every model receives the 64×64 binary stimulus through a preprocessing path we
-control (no hidden processor resizing). ``--resize nearest`` keeps the input
-binary, so its lower-order statistics stay matched across α; ``--resize bilinear``
-reproduces the interpolation used in the submitted analyses.
+Every model receives the binary stimulus through a preprocessing path we control
+(no hidden processor resizing). ``--resize nearest`` keeps the input binary; for
+v2 stimuli (``--set-name`` other than ``legacy``) the magnification must be an
+integer, so it is exact pixel replication and every stimulus statistic is preserved.
+``--resize bilinear`` approximates the submitted pipeline: it is identical for DINO,
+the supervised ViTs and ResNet50 (verified, row-wise r = 1.000), but CLIP's original
+processor used bicubic resizing (row-wise r = 0.79 against the cached features).
 
 Fixes relative to the legacy code:
   * MAE runs with ``mask_ratio=0`` (legacy masked 75% of patches at random).
@@ -34,8 +37,10 @@ CLIP_NORM = ((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.275
 HALF = ((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 
 
-def to_rgb(images: torch.Tensor, size: int, mode: str) -> torch.Tensor:
-    """(N, 64, 64) in [0, 1] -> (N, 3, size, size) resized with ``mode``."""
+def to_rgb(images: torch.Tensor, size: int, mode: str, exact: bool = False) -> torch.Tensor:
+    """(N, g, g) in [0, 1] -> (N, 3, size, size). ``exact`` requires integer magnification."""
+    if exact and size % images.shape[-1] != 0:
+        raise ValueError(f"grid {images.shape[-1]} does not divide input size {size}: not exact replication")
     x = images.unsqueeze(1).repeat(1, 3, 1, 1)
     if mode == "nearest":
         return F.interpolate(x, size=(size, size), mode="nearest")
@@ -79,11 +84,12 @@ def build_model(name: str, device: str) -> Tuple[Callable[[torch.Tensor], torch.
 
 
 @torch.no_grad()
-def extract_standard(name: str, images: torch.Tensor, mode: str, device: str, batch: int) -> np.ndarray:
+def extract_standard(name: str, images: torch.Tensor, mode: str, device: str, batch: int,
+                     exact: bool = False) -> np.ndarray:
     fwd, size, norm = build_model(name, device)
     feats = []
     for i in range(0, len(images), batch):
-        x = normalize(to_rgb(images[i:i + batch], size, mode), norm).to(device)
+        x = normalize(to_rgb(images[i:i + batch], size, mode, exact), norm).to(device)
         feats.append(fwd(x).float().cpu())
     return torch.cat(feats).numpy()
 
@@ -97,6 +103,8 @@ def extract_imagegpt(images: torch.Tensor, mode: str, device: str, batch: int) -
     if mode == "nearest":   # native scale: full 32×32 grid, or a 32×32 centre crop of a larger grid
         g = images.shape[-1]
         o = (g - 32) // 2
+        if g < 32 and 32 % g != 0:
+            raise ValueError(f"grid {g} cannot be replicated exactly to 32")
         crops = images[:, o:o + 32, o:o + 32] if g >= 32 else F.interpolate(
             images.unsqueeze(1), size=(32, 32), mode="nearest")[:, 0]
     else:                   # legacy: bilinear 64→32
@@ -126,7 +134,8 @@ def main() -> None:
     args.out_dir.mkdir(parents=True, exist_ok=True)
     for name in args.models:
         f = (extract_imagegpt(images, args.resize, "cuda", 8) if name == "imagegpt"
-             else extract_standard(name, images, args.resize, "cuda", args.batch))
+             else extract_standard(name, images, args.resize, "cuda", args.batch,
+                                   exact=(args.resize == "nearest" and args.set_name != "legacy")))
         tag = "" if args.set_name == "legacy" else f"_g{args.grid}_{args.set_name}"
         np.savez(args.out_dir / f"{name}_{args.resize}{tag}.npz", features=f, labels=labels,
                  resize=args.resize, grid=args.grid, set_name=args.set_name)

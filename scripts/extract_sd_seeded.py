@@ -111,9 +111,12 @@ def main() -> None:
     null_emb = pipe.text_encoder(ids)[0].detach().to(device)
 
     images, labels = load_alpha_stimuli(args.stim_dir, args.grid, args.set_name)
+    if args.resize == "nearest" and args.set_name != "legacy" and 512 % images.shape[-1] != 0:
+        raise ValueError(f"grid {images.shape[-1]} does not divide 512: not exact replication")
     args.out_dir.mkdir(parents=True, exist_ok=True)
     latents = encode_latents(vae, images, device, dtype, args.batch, args.resize)
-    np.savez(args.out_dir / f"vae_latents_{args.resize}.npz", latents=latents.numpy(), labels=labels)
+    np.savez(args.out_dir / f"vae_latents_{args.resize}_g{images.shape[-1]}_{args.set_name}.npz",
+             latents=latents.numpy(), labels=labels)
     logger.info(f"Encoded {len(latents)} latents {tuple(latents.shape[1:])}")
 
     for s in args.seeds:

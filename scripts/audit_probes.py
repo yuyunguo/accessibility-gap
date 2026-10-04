@@ -56,17 +56,19 @@ def build_probes(dim: int, include_slow: bool, seed: int) -> Dict[str, Tuple[Pip
     """Probe name -> (pipeline, hyperparameter grid). All are tuned by inner CV."""
     probes = {
         "ridge": (_scaled(Ridge()), {"est__alpha": list(np.logspace(-2, 6, 17))}),
+        # RBF width spans near-linear (small γ) to strongly local (large γ); γ is scaled by 1/dim
+        # because squared distances between standardized vectors grow linearly with dim.
         "kernel_rbf": (_scaled(KernelRidge(kernel="rbf")),
-                       {"est__alpha": [1e-3, 1e-2, 1e-1, 1, 10],
-                        "est__gamma": [g / dim for g in (0.03, 0.1, 0.3, 1.0, 3.0)]}),
-        "knn": (_scaled(KNeighborsRegressor(weights="distance")), {"est__n_neighbors": [5, 10, 20, 40]}),
+                       {"est__alpha": [1e-4, 1e-3, 1e-2, 1e-1, 1, 10],
+                        "est__gamma": [g / dim for g in (0.003, 0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0)]}),
+        "knn": (_scaled(KNeighborsRegressor(weights="distance")), {"est__n_neighbors": [3, 5, 10, 20, 40, 80]}),
         "hgb": (HistGradientBoostingRegressor(random_state=seed, early_stopping=True),
-                {"learning_rate": [0.05, 0.1], "max_leaf_nodes": [15, 31]}),
+                {"learning_rate": [0.03, 0.1, 0.3], "max_leaf_nodes": [7, 15, 31, 63]}),
     }
     if include_slow:
         probes["mlp"] = (_scaled(MLPRegressor(hidden_layer_sizes=(128, 32), solver="lbfgs", max_iter=2000,
                                               random_state=seed)),
-                         {"est__alpha": [1.0, 10.0, 100.0]})
+                         {"est__alpha": [0.1, 1.0, 10.0, 100.0, 1000.0]})
         # Wider network at the L2 most often selected for the standard MLP (sanity check on capacity).
         probes["mlp_wide"] = (_scaled(MLPRegressor(hidden_layer_sizes=(512, 128), solver="lbfgs", max_iter=2000,
                                                    alpha=10.0, random_state=seed)), {})
@@ -86,7 +88,10 @@ def run_mode(X: np.ndarray, y: np.ndarray, fam: np.ndarray, mode: str, probes: D
     res["kernel_rbf_permuted"] = {"test": []}
     rng = np.random.default_rng(seed)
     for k, (tr, te) in enumerate(outer_splits(y, fam, mode, n_splits, seed)):
-        inner = GroupKFold(3, shuffle=True, random_state=seed) if mode == "grouped" else 3
+        # Inner CV must be shuffled: rows are ordered by α level, so an unshuffled split would
+        # validate on α values absent from inner training data (extrapolation, biased tuning).
+        inner = (GroupKFold(3, shuffle=True, random_state=seed) if mode == "grouped"
+                 else list(StratifiedKFold(3, shuffle=True, random_state=seed).split(tr, np.unique(y[tr], return_inverse=True)[1])))
         fit_kw = {"groups": fam[tr]} if mode == "grouped" else {}
         for name, (pipe, grid) in probes.items():
             if grid:
