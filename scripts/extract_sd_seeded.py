@@ -41,12 +41,13 @@ def load_alpha_stimuli(stim_dir: Path) -> Tuple[torch.Tensor, np.ndarray]:
 
 
 @torch.no_grad()
-def encode_latents(vae, images: torch.Tensor, device: str, dtype, batch: int) -> torch.Tensor:
+def encode_latents(vae, images: torch.Tensor, device: str, dtype, batch: int, resize: str = "bilinear") -> torch.Tensor:
     """VAE posterior mean × scaling factor for every stimulus (deterministic)."""
     out = []
     for i in range(0, len(images), batch):
         x = images[i:i + batch].unsqueeze(1).repeat(1, 3, 1, 1)
-        x = F.interpolate(x, size=(512, 512), mode="bilinear", align_corners=False)
+        x = (F.interpolate(x, size=(512, 512), mode="nearest") if resize == "nearest"
+             else F.interpolate(x, size=(512, 512), mode="bilinear", align_corners=False))
         x = (2.0 * x - 1.0).to(device, dtype)
         out.append(vae.encode(x).latent_dist.mean * vae.config.scaling_factor)
     return torch.cat(out).float().cpu()
@@ -88,6 +89,7 @@ def main() -> None:
     parser.add_argument("--timesteps", type=int, nargs="+", default=[100, 300, 500, 700, 900])
     parser.add_argument("--seeds", type=int, nargs="+", default=list(range(10)))
     parser.add_argument("--batch", type=int, default=16)
+    parser.add_argument("--resize", choices=["bilinear", "nearest"], default="bilinear")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
@@ -101,8 +103,8 @@ def main() -> None:
 
     images, labels = load_alpha_stimuli(args.stim_dir)
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    latents = encode_latents(vae, images, device, dtype, args.batch)
-    np.savez(args.out_dir / "vae_latents.npz", latents=latents.numpy(), labels=labels)
+    latents = encode_latents(vae, images, device, dtype, args.batch, args.resize)
+    np.savez(args.out_dir / f"vae_latents_{args.resize}.npz", latents=latents.numpy(), labels=labels)
     logger.info(f"Encoded {len(latents)} latents {tuple(latents.shape[1:])}")
 
     for s in args.seeds:
@@ -110,8 +112,9 @@ def main() -> None:
         noise = torch.randn(latents.shape, generator=gen)
         for t in args.timesteps:
             f = midblock_features(unet, scheduler, latents, noise, t, null_emb, device, dtype, args.batch)
-            np.savez(args.out_dir / f"sd15_mid_t{t}_s{s}.npz", features=f, labels=labels,
-                     timestep=t, seed=s)
+            tag = "" if args.resize == "bilinear" else f"_{args.resize}"
+            np.savez(args.out_dir / f"sd15_mid_t{t}_s{s}{tag}.npz", features=f, labels=labels,
+                     timestep=t, seed=s, resize=args.resize)
             logger.info(f"seed={s} t={t}: features {f.shape}")
 
 
