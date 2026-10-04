@@ -94,8 +94,11 @@ def extract_imagegpt(images: torch.Tensor, mode: str, device: str, batch: int) -
     from transformers import ImageGPTImageProcessor, ImageGPTModel
     proc = ImageGPTImageProcessor.from_pretrained("openai/imagegpt-medium")
     m = ImageGPTModel.from_pretrained("openai/imagegpt-medium").to(device).eval()
-    if mode == "nearest":   # native-scale 32×32 centre crop: binary, no interpolation
-        crops = images[:, 16:48, 16:48]
+    if mode == "nearest":   # native scale: full 32×32 grid, or a 32×32 centre crop of a larger grid
+        g = images.shape[-1]
+        o = (g - 32) // 2
+        crops = images[:, o:o + 32, o:o + 32] if g >= 32 else F.interpolate(
+            images.unsqueeze(1), size=(32, 32), mode="nearest")[:, 0]
     else:                   # legacy: bilinear 64→32
         crops = F.interpolate(images.unsqueeze(1), size=(32, 32), mode="bilinear", align_corners=False)[:, 0]
     rgb = (crops.unsqueeze(-1).repeat(1, 1, 1, 3) * 255).round().to(torch.uint8).numpy()
@@ -114,15 +117,19 @@ def main() -> None:
     parser.add_argument("--models", nargs="+",
                         default=["clip", "mae", "dino", "supvit_in1k", "supvit_21k", "resnet50", "imagegpt"])
     parser.add_argument("--batch", type=int, default=32)
+    parser.add_argument("--grid", type=int, default=64, help="texture grid size of the stimulus files")
+    parser.add_argument("--set-name", default="legacy", help="'legacy' or the v2 set name (e.g. main, rep)")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
-    images, labels = load_alpha_stimuli(args.stim_dir)
+    images, labels = load_alpha_stimuli(args.stim_dir, args.grid, args.set_name)
     args.out_dir.mkdir(parents=True, exist_ok=True)
     for name in args.models:
         f = (extract_imagegpt(images, args.resize, "cuda", 8) if name == "imagegpt"
              else extract_standard(name, images, args.resize, "cuda", args.batch))
-        np.savez(args.out_dir / f"{name}_{args.resize}.npz", features=f, labels=labels, resize=args.resize)
+        tag = "" if args.set_name == "legacy" else f"_g{args.grid}_{args.set_name}"
+        np.savez(args.out_dir / f"{name}_{args.resize}{tag}.npz", features=f, labels=labels,
+                 resize=args.resize, grid=args.grid, set_name=args.set_name)
         logger.info(f"{name} [{args.resize}]: features {f.shape}")
         torch.cuda.empty_cache()
 

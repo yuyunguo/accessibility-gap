@@ -27,12 +27,19 @@ class _StopForward(Exception):
     """Raised by the mid-block hook to skip the UNet decoder."""
 
 
-def load_alpha_stimuli(stim_dir: Path) -> Tuple[torch.Tensor, np.ndarray]:
-    """Load the six α stimulus files as (N, 64, 64) in [0, 1] with labels."""
+def _stim_path(stim_dir: Path, a: float, grid: int, set_name: str) -> Path:
+    """Legacy files (64×64, shared seeds) or v2 seeded files from generate_btc_octave.py."""
+    if set_name == "legacy":
+        return stim_dir / f"informative_alpha_{str(a).replace('.', '')}_64x64.mat"
+    return stim_dir / f"alpha_{str(a).replace('.', 'p')}_{grid}x{grid}_{set_name}.mat"
+
+
+def load_alpha_stimuli(stim_dir: Path, grid: int = 64, set_name: str = "legacy") -> Tuple[torch.Tensor, np.ndarray]:
+    """Load the six nonzero-α stimulus files as (N, grid, grid) in [0, 1] with labels."""
     images: List[np.ndarray] = []
     labels: List[float] = []
     for a in ALPHAS:
-        maps = sio.loadmat(stim_dir / f"informative_alpha_{str(a).replace('.', '')}_64x64.mat")["maps"]
+        maps = sio.loadmat(_stim_path(stim_dir, a, grid, set_name))["maps"]
         maps = np.transpose(maps, (2, 0, 1)) if maps.ndim == 3 else maps[np.newaxis]
         maps = (maps - maps.min()) / (maps.max() - maps.min() + 1e-8)
         images.append(maps.astype(np.float32))
@@ -90,6 +97,8 @@ def main() -> None:
     parser.add_argument("--seeds", type=int, nargs="+", default=list(range(10)))
     parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--resize", choices=["bilinear", "nearest"], default="bilinear")
+    parser.add_argument("--grid", type=int, default=64, help="texture grid size of the stimulus files")
+    parser.add_argument("--set-name", default="legacy", help="'legacy' or the v2 set name (e.g. main, rep)")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
@@ -101,7 +110,7 @@ def main() -> None:
                          return_tensors="pt").input_ids
     null_emb = pipe.text_encoder(ids)[0].detach().to(device)
 
-    images, labels = load_alpha_stimuli(args.stim_dir)
+    images, labels = load_alpha_stimuli(args.stim_dir, args.grid, args.set_name)
     args.out_dir.mkdir(parents=True, exist_ok=True)
     latents = encode_latents(vae, images, device, dtype, args.batch, args.resize)
     np.savez(args.out_dir / f"vae_latents_{args.resize}.npz", latents=latents.numpy(), labels=labels)
@@ -113,6 +122,8 @@ def main() -> None:
         for t in args.timesteps:
             f = midblock_features(unet, scheduler, latents, noise, t, null_emb, device, dtype, args.batch)
             tag = "" if args.resize == "bilinear" else f"_{args.resize}"
+            if args.set_name != "legacy":
+                tag += f"_g{args.grid}_{args.set_name}"
             np.savez(args.out_dir / f"sd15_mid_t{t}_s{s}{tag}.npz", features=f, labels=labels,
                      timestep=t, seed=s, resize=args.resize)
             logger.info(f"seed={s} t={t}: features {f.shape}")
