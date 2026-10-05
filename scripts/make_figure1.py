@@ -98,7 +98,7 @@ def panel_b(ax, rows: List[Dict], primary: List[str]) -> None:
                     marker="o", ms=3.5, mfc=col if is_primary else "white", lw=1, capsize=1.5)
     ax.axvline(0, color="0.5", lw=0.7)
     ax.set_yticks(range(len(rows)), [label(r) for r in rows], fontsize=6)
-    ax.set_xticks([-0.004, 0.0, 0.004, 0.008])   # denser ticks collide at 5.4-in width
+    ax.set_xticks([-0.004, 0.0, 0.004, 0.008])   # 0.003 spacing collides at this width
     ax.invert_yaxis()
     ax.set_xlabel(r"$\Delta R^2$ = kernel $-$ ridge (95% CI)")
     ax.set_title("B  Nonlinear advantage", loc="left", fontsize=8, fontweight="bold")
@@ -109,7 +109,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--stats", type=Path, default=Path("results/final/final_stats.json"))
     ap.add_argument("--out", type=Path, default=Path("figures/fig1"))
-    ap.add_argument("--width", type=float, default=5.4, help="inches; 5.4 = elsarticle preprint text width (390 pt)")
+    ap.add_argument("--width", type=float, default=6.5, help="inches; 6.5 = manuscript text width (letter, 1-in margins)")
     ap.add_argument("--height", type=float, default=5.6, help="inches")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
