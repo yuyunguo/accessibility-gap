@@ -1,7 +1,7 @@
 """Figure 1: linear decodability of alpha and the nonlinear (RBF kernel) gap, from the frozen final run.
 
 Reads only results/final/final_stats.json (commit 9001efd); computes nothing new.
-  (A) ridge R² with 95% bootstrap CIs by check size k, per feature set.
+  (A) ridge R² with 95% bootstrap CIs by check size k, per feature set (series dodged horizontally).
   (B) kernel-minus-ridge gap with 95% CIs for all 35 controlled-texture conditions;
       filled markers = primary family (Holm-corrected), open = other conditions.
 
@@ -34,6 +34,7 @@ SD_SHADES = {100: "#A0A0A0", 300: "#666666", 500: "#222222"}
 K_224 = {28: 8, 56: 4, 112: 2}          # grid size -> check size, 224-px models
 K_SD = {64: 8, 128: 4, 256: 2}          # grid size -> check size, 512-px Stable Diffusion
 K_ORDER = [8, 4, 2, 1]                  # x positions in panel A (coarse -> fine)
+DODGE = 0.20                            # panel A: series spread over ±DODGE x-units so overlapping points stay visible
 
 
 def parse(name: str) -> Dict:
@@ -66,11 +67,13 @@ def panel_a(ax, rows: List[Dict]) -> None:
     xpos = {k: i for i, k in enumerate(K_ORDER)}
     series = [(m, lab, col, "-", "o") for m, (lab, col) in MODELS.items()]
     series += [(f"sd15_t{t}", f"SD, t = {t}", col, "--", "s") for t, col in SD_SHADES.items()]
-    for key, lab, col, ls, mk in series:
+    offsets = [DODGE * (2 * i / (len(series) - 1) - 1) for i in range(len(series))]
+    for (key, lab, col, ls, mk), off in zip(series, offsets):
         pts = [r for r in main if (r["model"] == key if not key.startswith("sd15")
                                    else r["model"] == "sd15" and f"t{r['t']}" == key[5:])]
+        assert len(pts) == (1 if key == "imagegpt" else 3), f"{key}: {len(pts)} points"
         pts.sort(key=lambda r: xpos[r["k"]])
-        x = [xpos[r["k"]] for r in pts]
+        x = [xpos[r["k"]] + off for r in pts]
         y = [r["ridge"] for r in pts]
         err = [[r["ridge"] - r["ridge_ci"][0] for r in pts], [r["ridge_ci"][1] - r["ridge"] for r in pts]]
         ax.errorbar(x, y, yerr=err, color=col, ls=ls, marker=mk, ms=3.5, lw=1, capsize=1.5, label=lab)
@@ -101,7 +104,7 @@ def panel_b(ax, rows: List[Dict], primary: List[str]) -> None:
     ax.set_xticks([-0.004, 0.0, 0.004, 0.008])   # 0.003 spacing collides at this width
     ax.invert_yaxis()
     ax.set_xlabel(r"$\Delta R^2$ = kernel $-$ ridge (95% CI)")
-    ax.set_title("B  Nonlinear advantage", loc="left", fontsize=8, fontweight="bold")
+    ax.set_title("B  Nonlinear (kernel) advantage", loc="left", fontsize=8, fontweight="bold")
     ax.text(0.98, 0.01, "filled: primary family", transform=ax.transAxes, ha="right", va="bottom", fontsize=6)
 
 
