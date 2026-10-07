@@ -1,9 +1,9 @@
 #!/bin/bash
-# Final analysis run (frozen). Execute from the repository root on the workstation.
+# Final analysis run (frozen). Execute from the repository root on a CUDA machine.
 # Step 0 tests; 1 extract remaining SD seeds; 2 natural-texture features; 3 OOF probes; 4 statistics.
 set -u
 cd "$(dirname "$0")"
-P=~/.pyenv/versions/3.12.5/bin/python
+P=${PYTHON:-python3}
 export HF_HUB_OFFLINE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 D=data/stimuli_v2; V3=results/features/v3; SD=results/features/v3sd; NAT=results/features/natural; OOF=results/final/oof
 log() { echo "[$(date +%T)] $*"; }
@@ -20,7 +20,7 @@ $P scripts/extract_sd_seeded.py --stim-dir $D/replication --grid 128 --set-name 
    --seeds 0 1 2 3 4 5 6 7 8 9 --timesteps 500 --out-dir $SD >> logs/final_extract.log 2>&1 || { log "EXTRACT FAILED rep"; exit 1; }
 
 log "step 2: natural-texture features"
-$P scripts/final_natural.py --patches /mnt/data/workspace2/efficient-coding/results/revision/dtd_patches_gamma.npz \
+$P scripts/final_natural.py --patches ${NATURAL_PATCHES:-data/natural/dtd_patches_gamma.npz} \
    --out-dir $NAT > logs/final_natural.log 2>&1 || { log "NATURAL FAILED"; exit 1; }
 
 log "step 3: OOF probes"

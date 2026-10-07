@@ -1,4 +1,4 @@
-"""Print the supplement cells that are filled from workstation result files (read-only; computes nothing new).
+"""Print the supplement cells that are filled from result files (read-only; computes nothing new).
 
   S2  ridge train R² for the primary family   <- results/final/oof/oof_*.json  (mean over folds; SD: over seeds too)
   S4  ridge R² by UNet stage at t = 100, 300  <- results/confirm/audit_blocks_*.json  (range over seeds 0-1)
@@ -7,7 +7,7 @@
   S2  audit probes (k-NN, boosting, MLPs)     <- results/confirm/audit_v3_*.json  (all summaries printed for review)
   S5  the 20 reproduced values               <- results/reproduction_baseline.json  (structure printed for review)
 
-Run on the workstation from the repo root: python scripts/make_supplement_tables.py
+Run from the repository root (requires results/): python scripts/make_supplement_tables.py
 """
 
 import glob

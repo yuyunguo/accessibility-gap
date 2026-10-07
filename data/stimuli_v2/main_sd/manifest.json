@@ -1,0 +1,443 @@
+[
+ {
+  "file": "alpha_0p0_64x64_main.mat",
+  "stat": "alpha",
+  "level": 0.0,
+  "size": 64,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10000,
+  "realized": {
+   "gamma": -0.0002,
+   "beta_h": 0.0004,
+   "beta_v": -0.0009,
+   "beta_d": 0.0001,
+   "beta_a": 0.0006,
+   "theta_abc": 0.0001,
+   "theta_abd": -0.0007,
+   "theta_acd": 0.0017,
+   "theta_bcd": -0.0024,
+   "alpha": 0.0007
+  }
+ },
+ {
+  "file": "alpha_0p05_64x64_main.mat",
+  "stat": "alpha",
+  "level": 0.05,
+  "size": 64,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10001,
+  "realized": {
+   "gamma": -0.0004,
+   "beta_h": -0.0002,
+   "beta_v": -0.0016,
+   "beta_d": -0.0025,
+   "beta_a": 0.0002,
+   "theta_abc": 0.0013,
+   "theta_abd": -0.0011,
+   "theta_acd": -0.0007,
+   "theta_bcd": 0.0021,
+   "alpha": 0.05
+  }
+ },
+ {
+  "file": "alpha_0p1_64x64_main.mat",
+  "stat": "alpha",
+  "level": 0.1,
+  "size": 64,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10002,
+  "realized": {
+   "gamma": 0.0017,
+   "beta_h": -0.0005,
+   "beta_v": -0.0001,
+   "beta_d": 0.0006,
+   "beta_a": -0.0011,
+   "theta_abc": -0.0006,
+   "theta_abd": 0.0003,
+   "theta_acd": -0.0,
+   "theta_bcd": -0.0007,
+   "alpha": 0.1004
+  }
+ },
+ {
+  "file": "alpha_0p2_64x64_main.mat",
+  "stat": "alpha",
+  "level": 0.2,
+  "size": 64,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10003,
+  "realized": {
+   "gamma": 0.001,
+   "beta_h": 0.0013,
+   "beta_v": -0.0007,
+   "beta_d": 0.0001,
+   "beta_a": 0.0015,
+   "theta_abc": 0.0002,
+   "theta_abd": -0.0005,
+   "theta_acd": -0.0018,
+   "theta_bcd": 0.0016,
+   "alpha": 0.2004
+  }
+ },
+ {
+  "file": "alpha_0p3_64x64_main.mat",
+  "stat": "alpha",
+  "level": 0.3,
+  "size": 64,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10004,
+  "realized": {
+   "gamma": -0.0002,
+   "beta_h": -0.0013,
+   "beta_v": -0.0018,
+   "beta_d": -0.0004,
+   "beta_a": -0.0001,
+   "theta_abc": 0.0001,
+   "theta_abd": -0.0005,
+   "theta_acd": 0.0001,
+   "theta_bcd": 0.0031,
+   "alpha": 0.3017
+  }
+ },
+ {
+  "file": "alpha_0p4_64x64_main.mat",
+  "stat": "alpha",
+  "level": 0.4,
+  "size": 64,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10005,
+  "realized": {
+   "gamma": 0.001,
+   "beta_h": 0.0021,
+   "beta_v": 0.0007,
+   "beta_d": -0.0008,
+   "beta_a": -0.0009,
+   "theta_abc": 0.0033,
+   "theta_abd": -0.0003,
+   "theta_acd": 0.0005,
+   "theta_bcd": 0.0014,
+   "alpha": 0.3996
+  }
+ },
+ {
+  "file": "alpha_0p5_64x64_main.mat",
+  "stat": "alpha",
+  "level": 0.5,
+  "size": 64,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10006,
+  "realized": {
+   "gamma": 0.0,
+   "beta_h": -0.0018,
+   "beta_v": 0.0006,
+   "beta_d": 0.0005,
+   "beta_a": 0.0001,
+   "theta_abc": 0.0001,
+   "theta_abd": -0.0004,
+   "theta_acd": 0.0015,
+   "theta_bcd": -0.0005,
+   "alpha": 0.5004
+  }
+ },
+ {
+  "file": "alpha_0p0_128x128_main.mat",
+  "stat": "alpha",
+  "level": 0.0,
+  "size": 128,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10007,
+  "realized": {
+   "gamma": -0.0004,
+   "beta_h": -0.0001,
+   "beta_v": -0.001,
+   "beta_d": 0.0005,
+   "beta_a": 0.0004,
+   "theta_abc": 0.0007,
+   "theta_abd": 0.0001,
+   "theta_acd": -0.0016,
+   "theta_bcd": -0.0003,
+   "alpha": -0.0004
+  }
+ },
+ {
+  "file": "alpha_0p05_128x128_main.mat",
+  "stat": "alpha",
+  "level": 0.05,
+  "size": 128,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10008,
+  "realized": {
+   "gamma": -0.0006,
+   "beta_h": -0.0,
+   "beta_v": -0.0003,
+   "beta_d": -0.0005,
+   "beta_a": 0.0007,
+   "theta_abc": -0.0003,
+   "theta_abd": 0.0002,
+   "theta_acd": 0.0005,
+   "theta_bcd": 0.0006,
+   "alpha": 0.049
+  }
+ },
+ {
+  "file": "alpha_0p1_128x128_main.mat",
+  "stat": "alpha",
+  "level": 0.1,
+  "size": 128,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10009,
+  "realized": {
+   "gamma": -0.0012,
+   "beta_h": 0.0007,
+   "beta_v": -0.0008,
+   "beta_d": 0.0002,
+   "beta_a": 0.0,
+   "theta_abc": 0.0001,
+   "theta_abd": -0.0007,
+   "theta_acd": -0.0004,
+   "theta_bcd": 0.0004,
+   "alpha": 0.1004
+  }
+ },
+ {
+  "file": "alpha_0p2_128x128_main.mat",
+  "stat": "alpha",
+  "level": 0.2,
+  "size": 128,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10010,
+  "realized": {
+   "gamma": -0.0002,
+   "beta_h": 0.0006,
+   "beta_v": 0.0003,
+   "beta_d": -0.0005,
+   "beta_a": 0.0002,
+   "theta_abc": 0.0005,
+   "theta_abd": -0.0008,
+   "theta_acd": -0.0001,
+   "theta_bcd": -0.0002,
+   "alpha": 0.1997
+  }
+ },
+ {
+  "file": "alpha_0p3_128x128_main.mat",
+  "stat": "alpha",
+  "level": 0.3,
+  "size": 128,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10011,
+  "realized": {
+   "gamma": 0.0001,
+   "beta_h": -0.0012,
+   "beta_v": -0.0011,
+   "beta_d": 0.0004,
+   "beta_a": 0.0005,
+   "theta_abc": 0.0001,
+   "theta_abd": 0.0,
+   "theta_acd": 0.0005,
+   "theta_bcd": 0.0003,
+   "alpha": 0.3001
+  }
+ },
+ {
+  "file": "alpha_0p4_128x128_main.mat",
+  "stat": "alpha",
+  "level": 0.4,
+  "size": 128,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10012,
+  "realized": {
+   "gamma": 0.0004,
+   "beta_h": -0.0007,
+   "beta_v": 0.001,
+   "beta_d": -0.0006,
+   "beta_a": 0.0003,
+   "theta_abc": 0.0006,
+   "theta_abd": 0.0004,
+   "theta_acd": 0.0001,
+   "theta_bcd": -0.0004,
+   "alpha": 0.3993
+  }
+ },
+ {
+  "file": "alpha_0p5_128x128_main.mat",
+  "stat": "alpha",
+  "level": 0.5,
+  "size": 128,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10013,
+  "realized": {
+   "gamma": -0.0007,
+   "beta_h": -0.0005,
+   "beta_v": 0.0011,
+   "beta_d": -0.0003,
+   "beta_a": -0.0003,
+   "theta_abc": -0.0005,
+   "theta_abd": -0.0005,
+   "theta_acd": -0.0001,
+   "theta_bcd": 0.0004,
+   "alpha": 0.5002
+  }
+ },
+ {
+  "file": "alpha_0p0_256x256_main.mat",
+  "stat": "alpha",
+  "level": 0.0,
+  "size": 256,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10014,
+  "realized": {
+   "gamma": -0.0002,
+   "beta_h": -0.0003,
+   "beta_v": -0.0002,
+   "beta_d": 0.0004,
+   "beta_a": 0.0003,
+   "theta_abc": 0.0001,
+   "theta_abd": 0.0002,
+   "theta_acd": 0.0001,
+   "theta_bcd": 0.0001,
+   "alpha": -0.0003
+  }
+ },
+ {
+  "file": "alpha_0p05_256x256_main.mat",
+  "stat": "alpha",
+  "level": 0.05,
+  "size": 256,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10015,
+  "realized": {
+   "gamma": -0.0005,
+   "beta_h": -0.0,
+   "beta_v": -0.0,
+   "beta_d": 0.0003,
+   "beta_a": 0.0002,
+   "theta_abc": 0.0006,
+   "theta_abd": -0.0001,
+   "theta_acd": -0.0001,
+   "theta_bcd": -0.0001,
+   "alpha": 0.0499
+  }
+ },
+ {
+  "file": "alpha_0p1_256x256_main.mat",
+  "stat": "alpha",
+  "level": 0.1,
+  "size": 256,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10016,
+  "realized": {
+   "gamma": 0.0001,
+   "beta_h": -0.0001,
+   "beta_v": 0.0009,
+   "beta_d": 0.0001,
+   "beta_a": 0.0001,
+   "theta_abc": 0.0002,
+   "theta_abd": -0.0002,
+   "theta_acd": -0.0003,
+   "theta_bcd": -0.0001,
+   "alpha": 0.1005
+  }
+ },
+ {
+  "file": "alpha_0p2_256x256_main.mat",
+  "stat": "alpha",
+  "level": 0.2,
+  "size": 256,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10017,
+  "realized": {
+   "gamma": 0.0003,
+   "beta_h": 0.0003,
+   "beta_v": -0.0001,
+   "beta_d": -0.0003,
+   "beta_a": -0.0003,
+   "theta_abc": -0.0001,
+   "theta_abd": 0.0,
+   "theta_acd": 0.0001,
+   "theta_bcd": -0.0003,
+   "alpha": 0.2002
+  }
+ },
+ {
+  "file": "alpha_0p3_256x256_main.mat",
+  "stat": "alpha",
+  "level": 0.3,
+  "size": 256,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10018,
+  "realized": {
+   "gamma": 0.0002,
+   "beta_h": 0.0007,
+   "beta_v": -0.0003,
+   "beta_d": -0.0001,
+   "beta_a": -0.0003,
+   "theta_abc": 0.0001,
+   "theta_abd": 0.0,
+   "theta_acd": -0.0003,
+   "theta_bcd": 0.0004,
+   "alpha": 0.3
+  }
+ },
+ {
+  "file": "alpha_0p4_256x256_main.mat",
+  "stat": "alpha",
+  "level": 0.4,
+  "size": 256,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10019,
+  "realized": {
+   "gamma": 0.0002,
+   "beta_h": -0.0007,
+   "beta_v": 0.0005,
+   "beta_d": 0.0,
+   "beta_a": 0.0001,
+   "theta_abc": -0.0004,
+   "theta_abd": -0.0003,
+   "theta_acd": 0.0002,
+   "theta_bcd": 0.0003,
+   "alpha": 0.4002
+  }
+ },
+ {
+  "file": "alpha_0p5_256x256_main.mat",
+  "stat": "alpha",
+  "level": 0.5,
+  "size": 256,
+  "nmaps": 200,
+  "set": "main",
+  "seed": 10020,
+  "realized": {
+   "gamma": -0.0002,
+   "beta_h": 0.0,
+   "beta_v": -0.001,
+   "beta_d": -0.0,
+   "beta_a": -0.0007,
+   "theta_abc": 0.0,
+   "theta_abd": 0.0002,
+   "theta_acd": 0.0001,
+   "theta_bcd": 0.0002,
+   "alpha": 0.5
+  }
+ }
+]

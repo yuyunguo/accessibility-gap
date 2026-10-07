@@ -1,0 +1,296 @@
+[
+ {
+  "file": "alpha_0p0_56x56_rep.mat",
+  "stat": "alpha",
+  "level": 0.0,
+  "size": 56,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30000,
+  "realized": {
+   "gamma": -0.0013,
+   "beta_h": 0.0003,
+   "beta_v": 0.0007,
+   "beta_d": 0.0009,
+   "beta_a": -0.0005,
+   "theta_abc": -0.0005,
+   "theta_abd": -0.0016,
+   "theta_acd": 0.0,
+   "theta_bcd": 0.0001,
+   "alpha": -0.001
+  }
+ },
+ {
+  "file": "alpha_0p05_56x56_rep.mat",
+  "stat": "alpha",
+  "level": 0.05,
+  "size": 56,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30001,
+  "realized": {
+   "gamma": -0.0001,
+   "beta_h": 0.0004,
+   "beta_v": 0.0006,
+   "beta_d": 0.0002,
+   "beta_a": -0.0001,
+   "theta_abc": -0.0004,
+   "theta_abd": 0.0009,
+   "theta_acd": -0.0011,
+   "theta_bcd": -0.0012,
+   "alpha": 0.0485
+  }
+ },
+ {
+  "file": "alpha_0p1_56x56_rep.mat",
+  "stat": "alpha",
+  "level": 0.1,
+  "size": 56,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30002,
+  "realized": {
+   "gamma": 0.0017,
+   "beta_h": 0.0026,
+   "beta_v": 0.0008,
+   "beta_d": 0.0028,
+   "beta_a": 0.0015,
+   "theta_abc": 0.0016,
+   "theta_abd": -0.0012,
+   "theta_acd": -0.0016,
+   "theta_bcd": -0.0012,
+   "alpha": 0.1008
+  }
+ },
+ {
+  "file": "alpha_0p2_56x56_rep.mat",
+  "stat": "alpha",
+  "level": 0.2,
+  "size": 56,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30003,
+  "realized": {
+   "gamma": 0.0002,
+   "beta_h": 0.0013,
+   "beta_v": 0.0007,
+   "beta_d": 0.0011,
+   "beta_a": 0.0004,
+   "theta_abc": -0.0013,
+   "theta_abd": -0.0019,
+   "theta_acd": -0.0009,
+   "theta_bcd": 0.0008,
+   "alpha": 0.2002
+  }
+ },
+ {
+  "file": "alpha_0p3_56x56_rep.mat",
+  "stat": "alpha",
+  "level": 0.3,
+  "size": 56,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30004,
+  "realized": {
+   "gamma": 0.0016,
+   "beta_h": -0.0009,
+   "beta_v": 0.0027,
+   "beta_d": -0.0015,
+   "beta_a": -0.0017,
+   "theta_abc": 0.0008,
+   "theta_abd": 0.0006,
+   "theta_acd": -0.0028,
+   "theta_bcd": -0.0004,
+   "alpha": 0.2977
+  }
+ },
+ {
+  "file": "alpha_0p4_56x56_rep.mat",
+  "stat": "alpha",
+  "level": 0.4,
+  "size": 56,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30005,
+  "realized": {
+   "gamma": 0.001,
+   "beta_h": 0.0038,
+   "beta_v": 0.0013,
+   "beta_d": -0.0004,
+   "beta_a": -0.0011,
+   "theta_abc": 0.001,
+   "theta_abd": 0.0005,
+   "theta_acd": 0.0008,
+   "theta_bcd": -0.0,
+   "alpha": 0.3994
+  }
+ },
+ {
+  "file": "alpha_0p5_56x56_rep.mat",
+  "stat": "alpha",
+  "level": 0.5,
+  "size": 56,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30006,
+  "realized": {
+   "gamma": 0.0014,
+   "beta_h": -0.005,
+   "beta_v": -0.0016,
+   "beta_d": 0.0007,
+   "beta_a": -0.0002,
+   "theta_abc": 0.0008,
+   "theta_abd": 0.0007,
+   "theta_acd": 0.001,
+   "theta_bcd": 0.0016,
+   "alpha": 0.4991
+  }
+ },
+ {
+  "file": "alpha_0p0_128x128_rep.mat",
+  "stat": "alpha",
+  "level": 0.0,
+  "size": 128,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30007,
+  "realized": {
+   "gamma": 0.0005,
+   "beta_h": 0.0004,
+   "beta_v": 0.001,
+   "beta_d": -0.0003,
+   "beta_a": 0.0006,
+   "theta_abc": 0.0001,
+   "theta_abd": 0.0005,
+   "theta_acd": -0.0002,
+   "theta_bcd": -0.0004,
+   "alpha": 0.0003
+  }
+ },
+ {
+  "file": "alpha_0p05_128x128_rep.mat",
+  "stat": "alpha",
+  "level": 0.05,
+  "size": 128,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30008,
+  "realized": {
+   "gamma": 0.0005,
+   "beta_h": -0.0008,
+   "beta_v": 0.0001,
+   "beta_d": -0.0006,
+   "beta_a": 0.0007,
+   "theta_abc": 0.0,
+   "theta_abd": -0.0008,
+   "theta_acd": 0.0006,
+   "theta_bcd": 0.0012,
+   "alpha": 0.0506
+  }
+ },
+ {
+  "file": "alpha_0p1_128x128_rep.mat",
+  "stat": "alpha",
+  "level": 0.1,
+  "size": 128,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30009,
+  "realized": {
+   "gamma": 0.001,
+   "beta_h": -0.0002,
+   "beta_v": 0.0006,
+   "beta_d": -0.0012,
+   "beta_a": -0.0001,
+   "theta_abc": -0.0002,
+   "theta_abd": 0.0004,
+   "theta_acd": -0.0001,
+   "theta_bcd": -0.0002,
+   "alpha": 0.1002
+  }
+ },
+ {
+  "file": "alpha_0p2_128x128_rep.mat",
+  "stat": "alpha",
+  "level": 0.2,
+  "size": 128,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30010,
+  "realized": {
+   "gamma": -0.0005,
+   "beta_h": 0.0001,
+   "beta_v": -0.0003,
+   "beta_d": -0.0006,
+   "beta_a": -0.0004,
+   "theta_abc": -0.0001,
+   "theta_abd": 0.0001,
+   "theta_acd": -0.0001,
+   "theta_bcd": -0.0003,
+   "alpha": 0.2004
+  }
+ },
+ {
+  "file": "alpha_0p3_128x128_rep.mat",
+  "stat": "alpha",
+  "level": 0.3,
+  "size": 128,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30011,
+  "realized": {
+   "gamma": -0.0005,
+   "beta_h": 0.0008,
+   "beta_v": 0.0001,
+   "beta_d": -0.0,
+   "beta_a": 0.0003,
+   "theta_abc": -0.0003,
+   "theta_abd": 0.0005,
+   "theta_acd": -0.0,
+   "theta_bcd": -0.0006,
+   "alpha": 0.2997
+  }
+ },
+ {
+  "file": "alpha_0p4_128x128_rep.mat",
+  "stat": "alpha",
+  "level": 0.4,
+  "size": 128,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30012,
+  "realized": {
+   "gamma": 0.0007,
+   "beta_h": 0.0005,
+   "beta_v": 0.0009,
+   "beta_d": 0.0007,
+   "beta_a": -0.0,
+   "theta_abc": 0.0006,
+   "theta_abd": 0.0003,
+   "theta_acd": 0.0002,
+   "theta_bcd": 0.0008,
+   "alpha": 0.4
+  }
+ },
+ {
+  "file": "alpha_0p5_128x128_rep.mat",
+  "stat": "alpha",
+  "level": 0.5,
+  "size": 128,
+  "nmaps": 200,
+  "set": "rep",
+  "seed": 30013,
+  "realized": {
+   "gamma": -0.0006,
+   "beta_h": 0.0016,
+   "beta_v": 0.0011,
+   "beta_d": -0.0004,
+   "beta_a": -0.0008,
+   "theta_abc": -0.0003,
+   "theta_abd": -0.0004,
+   "theta_acd": -0.0003,
+   "theta_bcd": -0.0004,
+   "alpha": 0.4993
+  }
+ }
+]

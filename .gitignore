@@ -1,4 +1,6 @@
-# Data, features, and results are not versioned (regenerate with the scripts)
+# Data, features, and results are not versioned (regenerate with the scripts).
+# Exceptions, force-added: results/final/final_stats.json, results/final/input_hashes.txt,
+# data/stimuli_v2/*/manifest.json
 data/
 results/
 outputs/
@@ -37,3 +39,6 @@ __pycache__/
 # Run logs
 *.log
 nohup.out
+
+# Local planning notes
+prereg/
