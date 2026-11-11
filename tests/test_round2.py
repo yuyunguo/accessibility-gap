@@ -112,6 +112,37 @@ def test_confirm_stats_rejects_missing_sets(tmp_path):
         analyse(collect(tmp_path))
 
 
+def test_default_probes_unchanged_by_amendment():
+    for name, (pipe, _) in probes_for(64, True).items():
+        assert [s for s, _ in pipe.steps] == ["scale", "est"], name
+
+
+def test_rare_filter_drops_only_rare_columns():
+    from final_probe import RareFeatureFilter
+    X = np.zeros((200, 4))
+    X[:, 0] = 1.0                       # dense
+    X[:1, 1] = 0.01                     # non-zero in 0.5% of rows -> dropped at 1%
+    X[:2, 2] = 0.01                     # 1% -> kept
+    f = RareFeatureFilter(0.01).fit(X)
+    assert f.keep_.tolist() == [True, False, True, False]
+    assert f.transform(X).shape == (200, 2)
+
+
+def test_rare_filter_prevents_ridge_blowup():
+    """A unit firing in one training image and in a test image must not dominate the prediction."""
+    from sklearn.base import clone
+    rng = np.random.default_rng(7)
+    y = np.repeat([0.05, 0.1, 0.2, 0.3, 0.4, 0.5], 40)
+    X = np.column_stack([y + rng.normal(0, 0.02, len(y)), rng.normal(size=(len(y), 5)), np.zeros(len(y))])
+    tr, te = np.arange(len(y)) % 5 != 0, np.arange(len(y)) % 5 == 0
+    X[np.flatnonzero(tr)[0], -1] = 1e-4          # fires once in training
+    X[np.flatnonzero(te)[0], -1] = 5e-3          # fires in a test image, 50x larger
+    for drop, ok in ((None, False), (0.01, True)):
+        pipe, _ = probes_for(X.shape[1], False, drop)["ridge"]
+        p = clone(pipe).set_params(est__alpha=1e-2).fit(X[tr], y[tr]).predict(X[te])
+        assert bool(np.abs(p - y[te]).max() < 0.2) == ok      # unfiltered: 0.30; filtered: 0.03
+
+
 def test_lolo_recovers_a_linear_target():
     rng = np.random.default_rng(6)
     y = np.repeat([0.05, 0.1, 0.2, 0.3, 0.4, 0.5], 40)

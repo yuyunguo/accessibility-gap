@@ -50,6 +50,7 @@ def main() -> None:
     parser.add_argument("features", type=Path, nargs="+")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--n-jobs", type=int, default=8)
+    parser.add_argument("--drop-rare", type=float, default=None, help="Amendment 1 (see final_probe.py)")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
     out = json.loads(args.out.read_text()) if args.out.exists() else {}
@@ -59,7 +60,8 @@ def main() -> None:
             continue
         d = np.load(f)
         X, y = d["features"].astype(np.float64), d["labels"].astype(np.float64)
-        res = {name: lolo(X, y, pipe, grid, args.n_jobs) for name, (pipe, grid) in probes_for(X.shape[1], False).items()}
+        res = {name: lolo(X, y, pipe, grid, args.n_jobs)
+               for name, (pipe, grid) in probes_for(X.shape[1], False, args.drop_rare).items()}
         res["gap_pooled"] = res["kernel_rbf"]["r2_pooled"] - res["ridge"]["r2_pooled"]
         out[f.stem] = res
         args.out.parent.mkdir(parents=True, exist_ok=True)

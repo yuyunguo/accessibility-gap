@@ -14,10 +14,10 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
-from sklearn.base import clone
+from sklearn.base import BaseEstimator, TransformerMixin, clone
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold, StratifiedKFold
 from sklearn.neural_network import MLPRegressor
 from sklearn.pipeline import Pipeline
@@ -39,11 +39,41 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def probes_for(dim: int, with_mlp: bool) -> Dict[str, Tuple[Pipeline, Dict]]:
+class RareFeatureFilter(BaseEstimator, TransformerMixin):
+    """Drop features that are non-zero in fewer than ``min_frac`` of the fitting rows.
+
+    Confirmatory Amendment 1. Fitted on the training fold only, before standardization,
+    and identical for every probe. A unit that fires in one or two training images
+    has a near-zero training SD; standardization then turns a test image where it
+    fires into an extreme outlier, and ridge extrapolates linearly into it.
+    """
+
+    def __init__(self, min_frac: float = 0.01) -> None:
+        self.min_frac = min_frac
+
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> "RareFeatureFilter":
+        self.keep_ = (np.asarray(X) != 0).mean(axis=0) >= self.min_frac
+        if not self.keep_.any():
+            raise ValueError("RareFeatureFilter would drop every feature")
+        return self
+
+    def transform(self, X: np.ndarray) -> np.ndarray:
+        return np.asarray(X)[:, self.keep_]
+
+
+def probes_for(dim: int, with_mlp: bool, drop_rare: Optional[float] = None) -> Dict[str, Tuple[Pipeline, Dict]]:
+    """Probe pipelines and grids. ``drop_rare`` (Amendment 1) prepends RareFeatureFilter to every probe.
+
+    The RBF γ grid stays scaled by the original ``dim``; the filter removes at most a few
+    percent of features, so the near-linear-to-local span of the grid is unchanged.
+    """
     p = {k: v for k, v in build_probes(dim, include_slow=False, seed=0).items() if k in ("ridge", "kernel_rbf")}
     if with_mlp:
         mlp = MLPRegressor(hidden_layer_sizes=(128, 32), solver="lbfgs", max_iter=2000, random_state=0)
         p["mlp"] = (Pipeline([("scale", StandardScaler()), ("est", mlp)]), {"est__alpha": MLP_L2})
+    if drop_rare is not None:
+        p = {k: (Pipeline([("rare", RareFeatureFilter(drop_rare))] + list(pipe.steps)), grid)
+             for k, (pipe, grid) in p.items()}
     return p
 
 
@@ -81,6 +111,8 @@ def main() -> None:
     parser.add_argument("--repeats", type=int, default=N_REPEATS)
     parser.add_argument("--mlp", action="store_true", help="also fit the tuned MLP (one repeat)")
     parser.add_argument("--n-jobs", type=int, default=4)
+    parser.add_argument("--drop-rare", type=float, default=None,
+                        help="Amendment 1: drop features non-zero in < this fraction of training rows (e.g. 0.01)")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
@@ -89,8 +121,10 @@ def main() -> None:
     assert X.ndim == 2 and len(X) == len(y) and np.isfinite(X).all(), "bad feature matrix"
     out = {"file": args.features.name, "sha256": sha256(args.features), "n": int(len(y)), "dim": int(X.shape[1]),
            "y": y, "cv": {"n_splits": N_SPLITS, "n_repeats": args.repeats, "seed": CV_SEED}}
+    if args.drop_rare is not None:
+        out["drop_rare"] = args.drop_rare
     t0 = time.time()
-    for name, (pipe, grid) in probes_for(X.shape[1], args.mlp).items():
+    for name, (pipe, grid) in probes_for(X.shape[1], args.mlp, args.drop_rare).items():
         reps = 1 if name == "mlp" else args.repeats
         out[name] = oof_predictions(X, y, pipe, grid, reps, args.n_jobs)
         r2 = [1 - np.sum((y - o) ** 2) / np.sum((y - y.mean()) ** 2) for o in out[name]["oof"]]
