@@ -13,7 +13,8 @@ from generate_btc_octave import realized_stats  # noqa: E402
 from r2_lolo import lolo  # noqa: E402
 from r2_simultaneous import bounds  # noqa: E402
 from r2_stimulus_stats import four_point, nine_stats, replicate  # noqa: E402
-from final_probe import probes_for  # noqa: E402
+from final_probe import RareFeatureFilter, probes_for  # noqa: E402
+from rare_filter_scope import can_act  # noqa: E402
 
 
 def _random_pm1(n: int, g: int, seed: int) -> np.ndarray:
@@ -150,3 +151,15 @@ def test_lolo_recovers_a_linear_target():
     pipe, grid = probes_for(X.shape[1], False)["ridge"]
     res = lolo(X, y, pipe, grid, n_jobs=1)
     assert res["r2_pooled"] > 0.95 and set(res["per_level"]) == {"0.05", "0.1", "0.2", "0.3", "0.4", "0.5"}
+
+
+def test_rare_filter_scope_bound_is_tight_and_safe():
+    # N = 1200: n_tr = 960, smallest fit = 640; guaranteed keep needs c - (1200 - 640) >= 6.4, i.e. c >= 567
+    for c, acts in ((567, False), (566, True)):
+        X = np.ones((1200, 3))
+        X[c:, 0] = 0.0
+        assert can_act(X, 0.01) == acts
+    X = np.ones((1200, 3))
+    X[567:, 0] = 0.0
+    worst = np.r_[np.arange(567 - 7, 567), np.arange(567, 1200)][:640]   # fewest non-zero rows a fit can contain
+    assert RareFeatureFilter(0.01).fit(X[worst]).keep_.all()
