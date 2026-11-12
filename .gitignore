@@ -1,6 +1,7 @@
 # Data, features, and results are not versioned (regenerate with the scripts).
 # Exceptions, force-added: results/final/final_stats.json, results/final/input_hashes.txt,
-# data/stimuli_v2/*/manifest.json
+# data/stimuli_v2/*/manifest.json, data/stimuli_conf/set*/manifest.json, and the summary JSONs under
+# results/round2, results/merged_a1, and results/confirm (confirm_stats.json and secondary/)
 data/
 results/
 outputs/
